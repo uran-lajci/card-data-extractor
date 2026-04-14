@@ -2,6 +2,7 @@ import json
 
 import streamlit as st
 
+from card_extractor.config import APP_PASSWORD
 from card_extractor.extractor import CARD_FIELDS, EXPECTED_IMAGE_COUNT, extract_fields
 
 IMAGE_LABELS = {
@@ -16,11 +17,31 @@ CARD_TYPE_LABELS = {
     'credit_card': 'Credit card',
 }
 
+ACCEPTED_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp']
+
+
+def check_password() -> bool:
+    if st.session_state.get('authenticated'):
+        return True
+
+    st.title('🔒 Card Field Extractor')
+    pwd = st.text_input('Password', type='password')
+    if st.button('Sign in'):
+        if APP_PASSWORD and pwd == APP_PASSWORD:
+            st.session_state['authenticated'] = True
+            st.rerun()
+        else:
+            st.error('Incorrect password.')
+    return False
+
 
 def main() -> None:
     st.set_page_config(page_title='Card Field Extractor', page_icon='🪪', layout='centered')
+
+    if not check_password():
+        return
+
     st.title('🪪 Card Field Extractor')
-    st.caption('Extract structured fields from card images using Claude Sonnet 4.5 on Amazon Bedrock.')
 
     card_type = st.selectbox('Card type', options=list(CARD_FIELDS), format_func=lambda k: CARD_TYPE_LABELS[k])
 
@@ -32,10 +53,9 @@ def main() -> None:
     cols = st.columns(expected)
     for i in range(expected):
         with cols[i]:
-            f = st.file_uploader(labels[i], type=['jpg', 'jpeg', 'png', 'gif', 'webp'],
-                                 key=f'file_{card_type}_{i}')
+            f = st.file_uploader(labels[i], type=ACCEPTED_TYPES, key=f'file_{card_type}_{i}')
             if f is not None:
-                st.image(f, caption=labels[i], use_container_width=True)
+                st.image(f, caption=labels[i], width='stretch')
                 uploaded.append(f.getvalue())
 
     with st.expander('Fields that will be extracted'):

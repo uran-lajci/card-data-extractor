@@ -23,4 +23,6 @@ AWS_ACCESS_KEY_ID = get_secret('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = get_secret('AWS_SECRET_ACCESS_KEY')
 AWS_REGION = get_secret('AWS_REGION')
 
+APP_PASSWORD = get_secret('APP_PASSWORD')
+
 MODEL_ID = 'eu.anthropic.claude-sonnet-4-5-20250929-v1:0'
